@@ -152,6 +152,8 @@ FLOAT_NP3 = c_float * NP3
 class St1(Structure):
     _fields_ = [
         ("n", c_int),
+        ("i", c_int),
+        ("f", c_float),
         ("f1a", FLOAT_NP3),
         ("f2p", POINTER(c_float)),
         ("f3p", POINTER(c_float))
@@ -167,7 +169,26 @@ print("\nPart 3a - Basic structures")
 # all seem to have the same effect even though r-sides different
 #sp[0].n = NP3                  # Python <int> constant
 #sp[0].n = c_int(NP3)           # ctypes c_int
-sp[0].n = c_int(NP3).value     # Python <int> object
+#sp[0].n = c_int(NP3).value     # Python <int> object
+
+sp.contents.n = c_int(NP3)     # alternate means of accessing structure
+#sp[0].n.value = c_int(NP3)     # DOESN'T WORK
+
+#sp[0].i = 1                    # Python <int> constant
+#sp[0].i = c_int(1)             # ctypes c_int
+#sp[0].i = c_int(1).value       # Python <int> object
+
+sp.contents.i = c_int(1)       # alternate means of accessing structure
+#sp[0].i.value = c_int(1)       # DOESN'T WORK
+
+#sp[0].f = 2.0                  # Python <int> constant
+#sp[0].f = c_float(2.0)         # ctypes c_int
+#sp[0].f = c_float(2.0).value   # Python <int> object
+
+sp.contents.f = c_float(2.0)   # alternate means of accessing structure
+#sp[0].f.value = c_float(2.0)   # DOESN'T WORK
+
+# array
 
 sarr = FLOAT_NP3()                          # actually a pointer to the array of c_float
 sp[0].f2p = cast(sarr, POINTER(c_float))    # cast as a pointer to first c_float
@@ -179,7 +200,9 @@ for i in range(sp[0].n):
     sp[0].f1a[i] = i
     sp[0].f2p[i] = i * 3
 
-print("PY - s.n, sp[0].n before: %d, %d"%(s.n, sp[0].n))
+print("PY - s.n, sp[0].n, sp.contents.n before: %d, %d, %d"%(s.n, sp[0].n, sp.contents.n))
+print("PY - s.i, sp[0].i, sp.contents.i before: %d, %d, %d"%(s.i, sp[0].i, sp.contents.i))
+print("PY - s.f, sp[0].f, sp.contents.f before: %f, %f, %f"%(s.f, sp[0].f, sp.contents.f))
 for i in range(sp[0].n):
     print("PY - sp[0].f1a[%d] before: %f"%(i, sp[0].f1a[i]))
 for i in range(sp[0].n):
@@ -188,7 +211,9 @@ print("PY - sp[0].f3p[0] before: %f"%sp[0].f3p[0])
 
 part3(sp)
 
-print("PY - s.n, sp[0].n after: %d, %d"%(s.n, sp[0].n))
+print("PY - s.n, sp[0].n, sp.contents.n after: %d, %d, %d"%(s.n, sp[0].n, sp.contents.n))
+print("PY - s.i, sp[0].i, sp.contents.i after: %d, %d, %d"%(s.i, sp[0].i, sp.contents.i))
+print("PY - s.f, sp[0].f, sp.contents.f after: %f, %f, %f"%(s.f, sp[0].f, sp.contents.f))
 for i in range(sp[0].n):
     print("PY - sp[0].f1a[%d] after: %f"%(i, sp[0].f1a[i]))
 for i in range(sp[0].n):
@@ -203,6 +228,8 @@ print("PY - sp[0].f3p[0] after: %f"%sp[0].f3p[0])
 
 typedef struct {
     int n;
+    int i;
+    float f;
     float f1a[3];
     float *f2p;
     float *f3p;
@@ -213,6 +240,10 @@ int part3(st1 *sp) {
 
     printf("C - sp->n before: %d\n", sp->n);
 
+    printf("C - sp->i before: %d\n", sp->i);
+
+    printf("C - sp->f before: %f\n", sp->f);
+
     for(i = 0; i < sp->n; i++) {
         printf("C - sp->f1a[%d] before: %f\n", i, sp->f1a[i]);
     }
@@ -221,6 +252,10 @@ int part3(st1 *sp) {
     }
 
     printf("C - *(sp->f3p) before: %f\n", *(sp->f3p));
+
+    sp->i *= 9;
+
+    sp->f *= 11;
 
 
     for(i = 0; i < sp->n; i++) {
@@ -232,6 +267,10 @@ int part3(st1 *sp) {
     *(sp->f3p) *= 7;
 
     printf("C - sp->n after: %d\n", sp->n);
+
+    printf("C - sp->i after: %d\n", sp->i);
+
+    printf("C - sp->f after: %f\n", sp->f);
 
     for(i = 0; i < sp->n; i++) {
         printf("C - sp->f1a[%d] after: %f\n", i, sp->f1a[i]);
